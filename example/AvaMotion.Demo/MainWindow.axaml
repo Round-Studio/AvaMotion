@@ -8,6 +8,7 @@
         Title="AvaMotion.Demo">
         <StackPanel>
                 <text:AnimationTextBlock Name="AnimationCharacter"
+                                         Text="Hello"
                                          FontSize="48"/>
                 <Button Click="Button_OnClick"
                         Content="Click me"></Button>
