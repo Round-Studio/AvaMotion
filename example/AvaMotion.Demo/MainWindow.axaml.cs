@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using AvaMotion.Enum.Text;
 
 namespace AvaMotion.Demo;
 
@@ -31,6 +32,7 @@ public partial class MainWindow : Window
             sb.Append(ChineseChars[Random.Shared.Next(ChineseChars.Length)]);
         }
 
+        AnimationCharacter.AnimationType = (TextAnimationType)ComboBox.SelectedIndex;
         AnimationCharacter.Text = sb.ToString();
     }
 }

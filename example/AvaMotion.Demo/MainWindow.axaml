@@ -12,5 +12,12 @@
                                          FontSize="48"/>
                 <Button Click="Button_OnClick"
                         Content="Click me"></Button>
+                <ComboBox Name="ComboBox"
+                          SelectedIndex="0">
+                        <ComboBoxItem Content="NumberRolling"></ComboBoxItem>
+                        <ComboBoxItem Content="SpringBounce"></ComboBoxItem>
+                        <ComboBoxItem Content="Typewriter"></ComboBoxItem>
+                        <ComboBoxItem Content="NeonGlow"></ComboBoxItem>
+                </ComboBox>
         </StackPanel>
 </Window>

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using AvaMotion.Enum.Text;
 
 namespace AvaMotion.Controls.Text;
 
@@ -14,6 +15,8 @@ public partial class AnimationTextBlock : UserControl
 
     public static readonly StyledProperty<int> CharacterIntervalProperty =
         AvaloniaProperty.Register<AnimationTextBlock, int>(nameof(CharacterInterval), defaultValue: 50);
+    
+    public TextAnimationType AnimationType { get; set; } = TextAnimationType.SpringBounce;
 
     public int CharacterInterval
     {
@@ -58,11 +61,13 @@ public partial class AnimationTextBlock : UserControl
 
             if (i < currentLength)
             {
+                _characterControls[i].AnimationType = AnimationType;
                 _ = _characterControls[i].ChangeCharacterAsync(newText[i], delay);
             }
             else
             {
                 var charControl = new AnimationCharacter(newText[i]);
+                charControl.AnimationType = AnimationType;
                 _characterControls.Add(charControl);
                 Container.Children.Add(charControl);
 

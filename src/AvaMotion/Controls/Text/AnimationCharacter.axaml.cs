@@ -18,7 +18,7 @@ public partial class AnimationCharacter : UserControl
         set => _ = ChangeCharacterAsync(value, 0);
     }
 
-    public TextAnimationType AnimationType { get; set; } = TextAnimationType.NumberRolling;
+    public TextAnimationType AnimationType { get; set; } = TextAnimationType.SpringBounce;
 
     private bool _isNormal = false;
 
@@ -109,8 +109,63 @@ public partial class AnimationCharacter : UserControl
                         break;
                 }
                 break;
-            
-            
+            case TextAnimationType.SpringBounce:
+                switch (status)
+                {
+                    case AnimationStatus.In:
+                        CharacterBlock.RenderTransform = TransformOperations.Parse("scale(0)");
+                        CharacterBlock.Opacity = 0;
+                        break;
+                    case AnimationStatus.Normal:
+                        CharacterBlock.Text = _character.ToString();
+                        CharacterBlock.Opacity = 1;
+                        CharacterBlock.RenderTransform = TransformOperations.Parse("scale(1)");
+                        break;
+                    case AnimationStatus.Out:
+                        CharacterBlock.RenderTransform = TransformOperations.Parse("scale(0) rotate(30deg)");
+                        CharacterBlock.Opacity = 0;
+                        break;
+                }
+                break;
+            case TextAnimationType.Typewriter:
+                switch (status)
+                {
+                    case AnimationStatus.In:
+                        CharacterBlock.Opacity = 0;
+                        CharacterBlock.RenderTransform = TransformOperations.Parse("translate(0, 5px)");
+                        break;
+                    case AnimationStatus.Normal:
+                        CharacterBlock.Text = _character.ToString();
+                        CharacterBlock.Opacity = 1;
+                        CharacterBlock.RenderTransform = TransformOperations.Parse("translate(0, 0)");
+                        break;
+                    case AnimationStatus.Out:
+                        CharacterBlock.Opacity = 0;
+                        CharacterBlock.RenderTransform = TransformOperations.Parse("translate(0, -5px)");
+                        break;
+                }
+                break;
+            case TextAnimationType.NeonGlow:
+                switch (status)
+                {
+                    case AnimationStatus.In:
+                        CharacterBlock.Opacity = 0.3;
+                        CharacterBlock.Effect = new BlurEffect() { Radius = fontSize * 3 };
+                        CharacterBlock.RenderTransform = TransformOperations.Parse("scale(1.2)");
+                        break;
+                    case AnimationStatus.Normal:
+                        CharacterBlock.Text = _character.ToString();
+                        CharacterBlock.Opacity = 1;
+                        CharacterBlock.Effect = new BlurEffect() { Radius = 0 };
+                        CharacterBlock.RenderTransform = TransformOperations.Parse("scale(1)");
+                        break;
+                    case AnimationStatus.Out:
+                        CharacterBlock.Opacity = 0.3;
+                        CharacterBlock.Effect = new BlurEffect() { Radius = fontSize * 3 };
+                        CharacterBlock.RenderTransform = TransformOperations.Parse("scale(1.2)");
+                        break;
+                }
+                break;
         }
     }
 }
