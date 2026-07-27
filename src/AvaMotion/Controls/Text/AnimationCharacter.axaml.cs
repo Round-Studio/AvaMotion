@@ -55,7 +55,7 @@ public partial class AnimationCharacter : UserControl
 
             CharacterBlock.Margin = new Thickness(0, -fontSize / 3, 0, fontSize / 3);
             CharacterBlock.Opacity = 0;
-            CharacterBlock.Effect = new BlurEffect() { Radius = fontSize * 4 };
+            CharacterBlock.Effect = new BlurEffect() { Radius = fontSize * 2 };
 
             await Task.Delay(280);
 
