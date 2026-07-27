@@ -2,6 +2,9 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Media.Transformation;
+using AvaMotion.Enum;
+using AvaMotion.Enum.Text;
 
 namespace AvaMotion.Controls.Text;
 
@@ -14,6 +17,8 @@ public partial class AnimationCharacter : UserControl
         get => _character;
         set => _ = ChangeCharacterAsync(value, 0);
     }
+
+    public TextAnimationType AnimationType { get; set; } = TextAnimationType.NumberRolling;
 
     private bool _isNormal = false;
 
@@ -51,19 +56,11 @@ public partial class AnimationCharacter : UserControl
 
         if (CharacterBlock != null)
         {
-            var fontSize = FontSize;
-
-            CharacterBlock.Margin = new Thickness(0, -fontSize / 3, 0, fontSize / 3);
-            CharacterBlock.Opacity = 0;
-            CharacterBlock.Effect = new BlurEffect() { Radius = fontSize * 2 };
-
+            RunAnimation(AnimationStatus.In);
             await Task.Delay(280);
 
             _isNormal = true;
-            CharacterBlock.Text = _character.ToString();
-            CharacterBlock.Margin = new Thickness(0);
-            CharacterBlock.Opacity = 1;
-            CharacterBlock.Effect = new BlurEffect() { Radius = 0 };
+            RunAnimation(AnimationStatus.Normal);
         }
     }
 
@@ -78,11 +75,42 @@ public partial class AnimationCharacter : UserControl
         {
             var fontSize = FontSize;
 
-            CharacterBlock.Margin = new Thickness(0, fontSize / 3, 0, -fontSize / 3);
-            CharacterBlock.Opacity = 0;
-
+            RunAnimation(AnimationStatus.Out);
             _isNormal = false;
             await Task.Delay(280);
+        }
+    }
+
+    private void RunAnimation(AnimationStatus status)
+    {
+        var fontSize = FontSize;
+        switch (AnimationType)
+        {
+            case TextAnimationType.NumberRolling:
+                switch (status)
+                {
+                    case AnimationStatus.In:
+                        CharacterBlock.Margin = new Thickness(0, -fontSize / 3, 0, fontSize / 3);
+                        CharacterBlock.RenderTransform = TransformOperations.Parse("scale(0.5)");
+                        CharacterBlock.Opacity = 0;
+                        CharacterBlock.Effect = new BlurEffect() { Radius = fontSize * 2 };
+                        break;
+                    case AnimationStatus.Normal:
+                        CharacterBlock.Text = _character.ToString();
+                        CharacterBlock.Margin = new Thickness(0);
+                        CharacterBlock.Opacity = 1;
+                        CharacterBlock.Effect = new BlurEffect() { Radius = 0 };
+                        CharacterBlock.RenderTransform = TransformOperations.Parse("scale(1)");
+                        break;
+                    case AnimationStatus.Out:
+                        CharacterBlock.Margin = new Thickness(0, fontSize / 3, 0, -fontSize / 3);
+                        CharacterBlock.Opacity = 0;
+                        CharacterBlock.RenderTransform = TransformOperations.Parse("scale(0.5)");
+                        break;
+                }
+                break;
+            
+            
         }
     }
 }

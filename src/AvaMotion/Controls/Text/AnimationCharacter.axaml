@@ -6,7 +6,8 @@
              x:Class="AvaMotion.Controls.Text.AnimationCharacter">
     <TextBlock Name="CharacterBlock"
                Opacity="1"
-               Margin="0">
+               Margin="0"
+               RenderTransformOrigin="50%,50%">
         <TextBlock.Effect>
             <BlurEffect Radius="0"></BlurEffect>
         </TextBlock.Effect>
@@ -21,6 +22,7 @@
                 <EffectTransition Property="Effect"
                                   Duration="0:0:0.20"
                                   Easing="ExponentialEaseOut" />
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.28" Easing="CubicEaseOut" />
             </Transitions>
         </TextBlock.Transitions>
     </TextBlock>
