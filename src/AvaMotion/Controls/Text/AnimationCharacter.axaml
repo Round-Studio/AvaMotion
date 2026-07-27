@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AvaMotion.Controls.Text.AnimationCharacter">
+    <TextBlock Name="CharacterBlock"
+               Opacity="1"
+               Margin="0">
+        <TextBlock.Effect>
+            <BlurEffect Radius="0"></BlurEffect>
+        </TextBlock.Effect>
+        <TextBlock.Transitions>
+            <Transitions>
+                <ThicknessTransition Property="Margin"
+                                     Duration="0:0:0.28"
+                                     Easing="BackEaseOut"></ThicknessTransition>
+                <DoubleTransition Property="Opacity"
+                                  Duration="0:0:0.18"
+                                  Easing="ExponentialEaseOut"></DoubleTransition>
+                <EffectTransition Property="Effect"
+                                  Duration="0:0:0.20"
+                                  Easing="ExponentialEaseOut" />
+            </Transitions>
+        </TextBlock.Transitions>
+    </TextBlock>
+</UserControl>

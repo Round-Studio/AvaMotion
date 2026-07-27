@@ -2,8 +2,14 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:text="clr-namespace:AvaMotion.Controls.Text;assembly=AvaMotion"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="AvaMotion.Demo.MainWindow"
         Title="AvaMotion.Demo">
-    Welcome to Avalonia!
+        <StackPanel>
+                <text:AnimationTextBlock Name="AnimationCharacter"
+                                         FontSize="48"/>
+                <Button Click="Button_OnClick"
+                        Content="Click me"></Button>
+        </StackPanel>
 </Window>
