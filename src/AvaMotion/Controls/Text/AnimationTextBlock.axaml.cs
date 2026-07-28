@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -11,11 +10,13 @@ namespace AvaMotion.Controls.Text;
 public partial class AnimationTextBlock : UserControl
 {
     private readonly List<AnimationCharacter> _characterControls = new();
-    private CancellationTokenSource? _cts;
+    private readonly List<AnimationCharacter> _animatingOutControls = new();
+    
+    private long _currentOperationId = 0;
 
     public static readonly StyledProperty<int> CharacterIntervalProperty =
         AvaloniaProperty.Register<AnimationTextBlock, int>(nameof(CharacterInterval), defaultValue: 50);
-    
+
     public TextAnimationType AnimationType { get; set; } = TextAnimationType.SpringBounce;
 
     public int CharacterInterval
@@ -45,70 +46,104 @@ public partial class AnimationTextBlock : UserControl
 
     private void OnTextChanged(string? newText)
     {
-        _cts?.Cancel();
-        _cts = new CancellationTokenSource();
-        var token = _cts.Token;
+        long operationId = ++_currentOperationId;
+
+        if (_animatingOutControls.Count > 0)
+        {
+            foreach (var ctrl in _animatingOutControls)
+            {
+                Container.Children.Remove(ctrl);
+            }
+            _animatingOutControls.Clear();
+        }
 
         newText ??= string.Empty;
 
         int newLength = newText.Length;
-        int currentLength = _characterControls.Count;
+        int maxIndex = Math.Max(newLength, _characterControls.Count);
         int interval = CharacterInterval;
 
-        for (int i = 0; i < newLength; i++)
+        var newlyCreatedControls = new List<AnimationCharacter>();
+        var removeControls = new List<AnimationCharacter>();
+
+        for (int i = 0; i < maxIndex; i++)
         {
             int delay = i * interval;
 
-            if (i < currentLength)
+            if (i < newLength)
             {
-                _characterControls[i].AnimationType = AnimationType;
-                _ = _characterControls[i].ChangeCharacterAsync(newText[i], delay);
+                char targetChar = newText[i];
+
+                if (i < _characterControls.Count)
+                {
+                    var ctrl = _characterControls[i];
+                    ctrl.AnimationType = AnimationType;
+                    _ = SafeChangeCharacterAsync(ctrl, targetChar, delay, operationId);
+                }
+                else
+                {
+                    var charControl = new AnimationCharacter(targetChar)
+                    {
+                        AnimationType = AnimationType
+                    };
+                    _characterControls.Add(charControl);
+                    newlyCreatedControls.Add(charControl);
+
+                    _ = SafeAnimateInAsync(charControl, delay + 280, operationId);
+                }
             }
             else
             {
-                var charControl = new AnimationCharacter(newText[i]);
-                charControl.AnimationType = AnimationType;
-                _characterControls.Add(charControl);
-                Container.Children.Add(charControl);
+                var ctrlToRemove = _characterControls[i];
+                removeControls.Add(ctrlToRemove);
 
-                _ = charControl.AnimateInAsync(delay + 280);
+                _ = AnimateOutAndRemoveAsync(ctrlToRemove, delay, operationId);
             }
         }
 
-        if (newLength < currentLength)
+        if (removeControls.Count > 0)
         {
-            var removeControls = new List<AnimationCharacter>();
-            int maxOutDelay = 0;
+            _characterControls.RemoveRange(newLength, removeControls.Count);
+            _animatingOutControls.AddRange(removeControls);
+        }
 
-            for (int i = newLength; i < currentLength; i++)
+        if (newlyCreatedControls.Count > 0)
+        {
+            Container.Children.AddRange(newlyCreatedControls);
+        }
+    }
+
+    private async Task SafeChangeCharacterAsync(AnimationCharacter ctrl, char character, int delay, long operationId)
+    {
+        await ctrl.ChangeCharacterAsync(character, delay);
+        if (operationId != _currentOperationId) return;
+    }
+
+    private async Task SafeAnimateInAsync(AnimationCharacter ctrl, int delay, long operationId)
+    {
+        await ctrl.AnimateInAsync(delay);
+        if (operationId != _currentOperationId) return;
+    }
+
+    private async Task AnimateOutAndRemoveAsync(AnimationCharacter ctrl, int delay, long operationId)
+    {
+        try
+        {
+            await ctrl.AnimateOutAsync(delay);
+        }
+        catch
+        {
+        }
+        finally
+        {
+            await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
             {
-                var charControlToRemove = _characterControls[i];
-                removeControls.Add(charControlToRemove);
-
-                int delay = i * interval;
-                maxOutDelay = Math.Max(maxOutDelay, delay);
-
-                _ = charControlToRemove.AnimateOutAsync(delay);
-            }
-
-            _characterControls.RemoveRange(newLength, currentLength - newLength);
-
-            int totalWaitTime = maxOutDelay + 280;
-            _ = Task.Run(async () =>
-            {
-                await Task.Delay(totalWaitTime, token);
-                if (token.IsCancellationRequested) return;
-
-                await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                if (_animatingOutControls.Contains(ctrl))
                 {
-                    if (token.IsCancellationRequested) return;
-
-                    foreach (var ctrl in removeControls)
-                    {
-                        Container.Children.Remove(ctrl);
-                    }
-                });
-            }, token);
+                    Container.Children.Remove(ctrl);
+                    _animatingOutControls.Remove(ctrl);
+                }
+            });
         }
     }
 }
